@@ -10,8 +10,7 @@ from io import StringIO
 aapl = requests.get("https://www.quandl.com/api/v3/datasets/WIKI/AAPL.csv")
 aapl_string = StringIO(aapl.text)
 data = pd.read_csv(aapl_string, sep=",")
-data = data.head(3000)
-#data = data.head(1000)
+data = data.head(3000) # for time purposes
 
 # Loop through prices and compare to SMA
 def priceLoop(close_prices, dates, timeperiod=30, prop=0.25):
@@ -63,7 +62,6 @@ def priceLoop(close_prices, dates, timeperiod=30, prop=0.25):
     #return buy_sell, close_prices, simp_ma
 
 result = priceLoop(data['Close'].as_matrix(), data['Date'].as_matrix(), timeperiod=30)
-#buy_sell, close_prices, simp_ma = priceLoop(data['Close'].as_matrix(),
-#                                            data['Date'].as_matrix(), timeperiod=30)
 result = result[['Date', 'Close', 'SMA', 'Decision']]
+
 result.to_csv('result.csv')
