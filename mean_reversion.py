@@ -32,7 +32,7 @@ def priceLoop(close_prices, dates, timeperiod=30, prop=0.25):
 
     simp_ma = talib.SMA(close_prices, timeperiod=timeperiod)
 
-    buy_sell = [np.nan]*29
+    buy_sell = [np.nan]*(timperiod-1)
 
     for i in range(timeperiod-1, len(close_prices)):
         current_close = close_prices[i]
