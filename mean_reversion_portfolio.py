@@ -8,11 +8,16 @@ from io import StringIO
 print("Running...")
 
 # Get data from Quandl (is there a better API?)
-aapl = requests.get("https://www.quandl.com/api/v3/datasets/WIKI/AAPL.csv")
-aapl_string = StringIO(aapl.text)
-data = pd.read_csv(aapl_string, sep=",")
-data = data.head(3000) # for time purposes
-data = data.iloc[::-1].reset_index()
+def getDataQuandl(ticker):
+    q_data = requests.get("https://www.quandl.com/api/v3/datasets/WIKI/" + ticker + ".csv")
+    q_string = StringIO(q_data.text)
+    data = pd.read_csv(q_string, sep=",")
+    data = data.head(3000) # for time purposes
+    data = data.iloc[::-1].reset_index()
+
+    return data
+
+initial_cash_balance = 10000
 
 # Loop through prices and compare to SMA
 def priceLoop(close_prices, dates, initial_cash_balance, timeperiod=30, prop=0.25):
@@ -109,9 +114,20 @@ def sell(current_close, last_cash_balance, last_shares_held):
 
     return new_cash_balance, new_shares
 
+# Run everything
+def runMeanReversion(ticker):
+    print('Running for', ticker + '...')
+    data = getDataQuandl(ticker)
+    result = priceLoop(data['Close'].as_matrix(), data['Date'].as_matrix(), initial_cash_balance=initial_cash_balance, timeperiod=30, prop=0.05)
+    result = result[['Date', 'Close', 'SMA', 'Decision', 'Cash Balance', 'Shares Held', 'Total Value']]
 
-# Save results
-result = priceLoop(data['Close'].as_matrix(), data['Date'].as_matrix(), initial_cash_balance=10000, timeperiod=30, prop=0.05)
-result = result[['Date', 'Close', 'SMA', 'Decision', 'Cash Balance', 'Shares Held', 'Total Value']]
+    total_return = result.iloc[-1]['Total Value']
+    print('Returns for', ticker + ':', str(round((total_return/initial_cash_balance)*100, 2))+'%')
+    result.to_csv('result_' + ticker + '.csv')
 
-result.to_csv('result_portfolio.csv')
+
+runMeanReversion('AAPL')
+runMeanReversion('MSFT')
+runMeanReversion('TWTR')
+runMeanReversion('TSCO')
+runMeanReversion('RAD')
