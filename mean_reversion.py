@@ -34,7 +34,7 @@ def priceLoop(close_prices, dates, timeperiod=30, prop=0.25):
 
     buy_sell = [np.nan]*(timperiod-1)
 
-    for i in range(timeperiod-1, len(close_prices)):
+    for i in range(len(close_prices), timeperiod-1, -1):
         current_close = close_prices[i]
         current_sma = simp_ma[i]
         if current_close > (1+prop)*current_sma:
